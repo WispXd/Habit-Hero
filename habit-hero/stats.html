@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistics | HabitHero</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
+<custom-navbar></custom-navbar>
+    
+    <main class="container mx-auto px-4 py-8">
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Your Statistics</h1>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- Streak Card -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-primary-100 dark:bg-primary-900 mr-4">
+                        <i data-feather="zap" class="w-6 h-6 text-primary-500 dark:text-primary-400"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-gray-600 dark:text-gray-700 text-sm">Current Streak</h3>
+<p class="text-2xl font-bold text-gray-800 dark:text-white">42 days</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- XP Card -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-green-100 dark:bg-green-900 mr-4">
+                        <i data-feather="award" class="w-6 h-6 text-green-500 dark:text-green-400"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-gray-500 dark:text-gray-400 text-sm">Total XP</h3>
+                        <p class="text-2xl font-bold text-gray-800 dark:text-white">1,245 XP</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Level Card -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-purple-100 dark:bg-purple-900 mr-4">
+                        <i data-feather="star" class="w-6 h-6 text-purple-500 dark:text-purple-400"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-gray-500 dark:text-gray-400 text-sm">Level</h3>
+                        <p class="text-2xl font-bold text-gray-800 dark:text-white">Level 5</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+                <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Habit Completion</h2>
+                <canvas id="habitsChart" height="250"></canvas>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+                <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Task Completion</h2>
+                <canvas id="tasksChart" height="250"></canvas>
+            </div>
+        </div>
+    </main>
+
+    <custom-footer></custom-footer>
+
+    <script src="components/navbar.js"></script>
+    <script src="components/footer.js"></script>
+    <script src="script.js"></script>
+    <script>
+        feather.replace();
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Habit Completion Chart
+            const habitsCtx = document.getElementById('habitsChart').getContext('2d');
+            const habitsChart = new Chart(habitsCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Habits Completed',
+                        data: [3, 2, 4, 5, 3, 1, 4],
+                        backgroundColor: '#6366f1',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 5
+                        }
+                    }
+                }
+            });
+
+            // Task Completion Chart
+            const tasksCtx = document.getElementById('tasksChart').getContext('2d');
+            const tasksChart = new Chart(tasksCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Tasks Completed',
+                        data: [5, 7, 4, 6, 8, 3, 2],
+                        borderColor: '#ec4899',
+                        backgroundColor: 'rgba(236, 72, 153, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
