@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Habit Hero | Productivity Tracker</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://unpkg.com/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<!-- Your firebase config -->
+<script src="firebase-config.js"></script>
+
+<!-- Navbar JS (if you have navbar.js injecting HTML) -->
+<script src="navbar.js"></script>
+
+<!-- Logout script -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const logoutBtn = document.getElementById("logout-btn");
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", async () => {
+        try {
+          await auth.signOut();
+          window.location.href = "login.html";
+        } catch (err) {
+          console.error("Logout failed:", err);
+        }
+      });
+    }
+  });
+</script>
+    <style>
+        .pixelated {
+            image-rendering: pixelated;
+        }
+    </style>
+<script src="https://unpkg.com/feather-icons"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            500: '#6366f1',
+                        },
+                        secondary: {
+                            500: '#ec4899',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen dashboard-page">
+<custom-navbar></custom-navbar>
+    
+    <main class="container mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Welcome Card -->
+            <div class="lg:col-span-3">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 pixel-border" style="background: rgba(255,255,255,0.9);">
+<div class="flex items-center justify-between">
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-800 dark:text-black">Welcome back, Hero!</h1>
+                            <p class="text-gray-700 dark:text-gray-800 mt-2">Your quest for productivity continues...</p>
+</div>
+            <div class="flex items-center space-x-4">
+              <div class="text-center">
+                <div id="dashboard-streak" class="text-xl font-bold rainbow-text">0</div>
+                <div class="text-xs text-gray-800 dark:text-gray-900">DAY STREAK</div>
+              </div>
+              <div class="text-center">
+                <div id="dashboard-xp" class="text-xl font-bold rainbow-text">0</div>
+                <div class="text-xs text-gray-800 dark:text-gray-900">TOTAL XP</div>
+              </div>
+              <div class="text-center">
+                <div id="dashboard-level" class="text-xl font-bold level-up">1</div>
+                <div class="text-xs text-gray-800 dark:text-gray-900">LEVEL</div>
+              </div>
+              <div class="text-center">
+                <div id="dashboard-coins" class="text-xl font-bold text-yellow-400">0</div>
+                <div class="text-xs text-gray-800 dark:text-gray-900">COINS</div>
+              </div>
+            </div>
+
+                    </div>
+                </div>
+            </div>
+            <!-- Tasks Section -->
+            <div class="lg:col-span-2">
+              <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden pixel-border"
+                   style="background: rgba(255,255,255,0.9);">
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                  <h2 class="text-lg font-semibold text-gray-800 dark:text-black">Today's Tasks</h2>
+                  <button type="button"
+                          onclick="window.location.href='tasks.html'"
+                          class="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400 flex items-center">
+                    <i data-feather="plus" class="w-4 h-4 mr-1"></i> Add Task
+                  </button>
+                </div>
+
+                <!-- Dynamic tasks list -->
+                <div class="divide-y divide-black-200 dark:divide-black-700" id="dashboard-tasks-list">
+                  <p id="dashboard-tasks-empty"
+                     class="p-4 text-sm text-black-500 dark:text-black-400">
+                    No tasks yet. Add some in the Tasks tab.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Habits Section -->
+            <div class="lg:col-span-1">
+              <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden pixel-border"
+                   style="background: rgba(255,255,255,0.9);">
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                  <h2 class="text-lg font-semibold text-gray-800 dark:text-black">Daily Habits</h2>
+                  <button type="button"
+                          onclick="window.location.href='habits.html'"
+                          class="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400 flex items-center">
+                    <i data-feather="plus" class="w-4 h-4 mr-1"></i> Add Habit
+                  </button>
+                </div>
+
+                <!-- Dynamic habits list -->
+                <div class="divide-y divide-black-200 dark:divide-black-700" id="dashboard-habits-list">
+                  <p id="dashboard-habits-empty"
+                     class="p-4 text-sm text-black-500 dark:text-black-400">
+                    No habits yet. Add some in the Habits tab.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <!-- Analytics Section -->
+            <div class="lg:col-span-3">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 pixel-border" style="background: rgba(255,255,255,0.9);">
+<h2 class="text-lg font-semibold text-gray-800 dark:text-black mb-4">Weekly Progress</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <canvas id="habitsChart" height="200"></canvas>
+                        </div>
+                        <div>
+                            <canvas id="tasksChart" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <custom-footer></custom-footer>
+    <script src="js/navbar.js"></script>
+    <script src="js/footer.js"></script>
+    <script src="js/character.js"></script>
+    <game-character></game-character>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="script.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    if (window.feather) {
+      feather.replace();
+    }
+
+    // Get state safely (from global or localStorage)
+    function getSavedState() {
+      if (typeof state !== 'undefined' && state.tasks && state.habits) {
+        return state;
+      }
+      try {
+        // fall back to stored data if global state isn't there
+        const raw =
+          localStorage.getItem('habithero-data-v2') ||
+          localStorage.getItem('habithero-data');
+        return raw ? JSON.parse(raw) : {};
+      } catch (e) {
+        console.warn('Could not read saved state:', e);
+        return {};
+      }
+    }
+
+    const s = getSavedState();
+    const tasks = Array.isArray(s.tasks) ? s.tasks : [];
+    const habits = Array.isArray(s.habits) ? s.habits : [];
+
+    const totalTasks = tasks.length;
+    const completedTasks = tasks.filter(t => t.completed).length;
+
+    const totalHabits = habits.length;
+    const completedHabits = habits.filter(h => h.completedToday).length;
+
+    const streakVal = typeof s.streak === 'number' ? s.streak : 0;
+    const xpVal = typeof s.xp === 'number' ? s.xp : 0;
+    const levelVal = typeof s.level === 'number' ? s.level : 1;
+    const coinsVal = typeof s.coins === 'number' ? s.coins : 0;
+
+    const streakEl = document.getElementById('dashboard-streak');
+    const xpEl = document.getElementById('dashboard-xp');
+    const levelEl = document.getElementById('dashboard-level');
+    const coinsEl = document.getElementById('dashboard-coins');
+
+    if (streakEl) streakEl.textContent = streakVal;
+    if (xpEl) xpEl.textContent = xpVal.toLocaleString();
+    if (levelEl) levelEl.textContent = levelVal;
+    if (coinsEl) coinsEl.textContent = coinsVal.toLocaleString();
+
+
+    // ---------- DASHBOARD TASKS LIST (with date + priority) ----------
+    const dashboardTasksList = document.getElementById('dashboard-tasks-list');
+    const dashboardTasksEmpty = document.getElementById('dashboard-tasks-empty');
+
+    if (dashboardTasksList && dashboardTasksEmpty) {
+      dashboardTasksList.innerHTML = '';
+
+      if (!tasks.length) {
+        dashboardTasksEmpty.classList.remove('hidden');
+      } else {
+        dashboardTasksEmpty.classList.add('hidden');
+
+        const priorityRank = { high: 0, medium: 1, low: 2 };
+
+        tasks
+          .slice()
+          // sort by priority then due date
+          .sort((a, b) => {
+            const pa = priorityRank[a.priority] ?? 1;
+            const pb = priorityRank[b.priority] ?? 1;
+            if (pa !== pb) return pa - pb;
+
+            if (a.due && b.due) return a.due.localeCompare(b.due);
+            if (a.due) return -1;
+            if (b.due) return 1;
+            return 0;
+          })
+          .slice(0, 5) // show top 5
+          .forEach(task => {
+            const row = document.createElement('div');
+            row.className =
+              'p-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700';
+
+            const left = document.createElement('div');
+            left.className = 'flex flex-col';
+
+            const titleEl = document.createElement('span');
+            titleEl.className = 'font-medium text-black-800 dark:text-black-100';
+            titleEl.textContent = task.title || 'Untitled task';
+
+            const metaEl = document.createElement('span');
+            metaEl.className = 'text-xs text-black-500 dark:text-black-400';
+
+            const bits = [];
+            if (task.due && typeof formatDate === 'function') {
+              bits.push(formatDate(task.due));
+            }
+            if (task.priority) {
+              const label =
+                task.priority.charAt(0).toUpperCase() +
+                task.priority.slice(1);
+              bits.push(label + ' priority');
+            }
+            metaEl.textContent = bits.join(' • ');
+
+            left.appendChild(titleEl);
+            if (bits.length) left.appendChild(metaEl);
+
+            const badge = document.createElement('span');
+            badge.className =
+              'text-xs px-2 py-1 rounded-full ' +
+              (task.completed
+                ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-100'
+                : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-100');
+            badge.textContent = task.completed ? 'Done' : 'Pending';
+
+            row.appendChild(left);
+            row.appendChild(badge);
+            dashboardTasksList.appendChild(row);
+          });
+      }
+    }
+
+    // ---------- DASHBOARD HABITS LIST ----------
+    // (shows XP + streak; habits don’t have date/priority fields right now)
+    const dashboardHabitsList = document.getElementById('dashboard-habits-list');
+    const dashboardHabitsEmpty = document.getElementById('dashboard-habits-empty');
+
+    if (dashboardHabitsList && dashboardHabitsEmpty) {
+      dashboardHabitsList.innerHTML = '';
+
+      if (!habits.length) {
+        dashboardHabitsEmpty.classList.remove('hidden');
+      } else {
+        dashboardHabitsEmpty.classList.add('hidden');
+
+        habits
+          .slice()
+          // sort by longest streak
+          .sort((a, b) => (b.streak || 0) - (a.streak || 0))
+          .slice(0, 5)
+          .forEach(habit => {
+            const row = document.createElement('div');
+            row.className =
+              'p-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700';
+
+            const left = document.createElement('div');
+            left.className = 'flex flex-col';
+
+            const titleEl = document.createElement('span');
+            titleEl.className = 'font-medium text-black-800 dark:text-black-100';
+            titleEl.textContent = habit.title || 'Untitled habit';
+
+            const metaEl = document.createElement('span');
+            metaEl.className = 'text-xs text-gray-500 dark:text-gray-400';
+            metaEl.textContent =
+              (habit.xp || 5) + ' XP • Streak: ' + (habit.streak || 0);
+
+            left.appendChild(titleEl);
+            left.appendChild(metaEl);
+
+            const badge = document.createElement('span');
+            badge.className =
+              'text-xs px-2 py-1 rounded-full ' +
+              (habit.completedToday
+                ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-100'
+                : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200');
+            badge.textContent = habit.completedToday ? 'Done today' : 'Not yet';
+
+            row.appendChild(left);
+            row.appendChild(badge);
+            dashboardHabitsList.appendChild(row);
+          });
+      }
+    }
+
+    // ---------- CHARTS (same as before) ----------
+    const habitsCtx = document.getElementById('habitsChart').getContext('2d');
+    new Chart(habitsCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Total Habits', 'Completed Today'],
+        datasets: [
+          {
+            label: 'Habits',
+            data: [totalHabits, completedHabits],
+            backgroundColor: ['#6366f1', '#10b981'],
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: { beginAtZero: true },
+        },
+      },
+    });
+
+    const tasksCtx = document.getElementById('tasksChart').getContext('2d');
+    new Chart(tasksCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Total Tasks', 'Completed Tasks'],
+        datasets: [
+          {
+            label: 'Tasks',
+            data: [totalTasks, completedTasks],
+            backgroundColor: ['#ec4899', '#f59e0b'],
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: { beginAtZero: true },
+        },
+      },
+    });
+  });
+</script>
+</body>
+</html>

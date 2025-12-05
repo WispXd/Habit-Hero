@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rewards & Cosmetics | HabitHero</title>
+
+  <link rel="stylesheet" href="style.css">
+  <link href="https://unpkg.com/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+  <!-- Your firebase config -->
+  <script src="firebase-config.js"></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
+  <custom-navbar></custom-navbar>
+
+  <main class="container mx-auto px-4 py-8 space-y-10">
+    <!-- Page header + coins -->
+    <div class="flex justify-between items-center mb-4">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Rewards & Cosmetic Shop</h1>
+        <p class="text-gray-700 dark:text-gray-300 mt-1 text-sm">
+          Redeem your progress for real-world rewards or profile cosmetics.
+        </p>
+      </div>
+      <div class="flex items-center gap-2 bg-gray-900/80 text-yellow-300 px-4 py-2 rounded-full">
+        <i data-feather="star" class="w-4 h-4"></i>
+        <span id="rewards-coins">0</span> coins
+      </div>
+    </div>
+
+    <!-- REWARDS SECTION -->
+  <section>
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="text-xl font-bold text-gray-800 dark:text-white">Rewards</h2>
+    <button
+      id="add-reward-btn"
+      class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg text-sm font-medium"
+      type="button"
+    >
+      New Custom Reward
+    </button>
+  </div>
+
+  <p class="text-gray-700 dark:text-gray-300 mb-4">
+    Create your own rewards and “buy” them with XP when you’ve earned them.
+  </p>
+
+  <!-- 👇 JS will render all rewards here -->
+  <div
+    id="rewards-grid"
+    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+  >
+  </div>
+</section>
+
+    <!-- COSMETIC SHOP SECTION -->
+    <section>
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold text-gray-800 dark:text-white">Cosmetic Shop</h2>
+      </div>
+
+      <p class="text-gray-700 dark:text-gray-300 mb-4">
+        Spend coins you earn from completing tasks and habits to unlock avatar frames for your profile.
+      </p>
+
+      <div
+        id="cosmetics-grid"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+      ></div>
+    </section>
+  </main>
+
+  <!-- CUSTOM REWARD MODAL -->
+  <div
+    id="add-reward-modal"
+    class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center hidden"
+  >
+    <div class="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-lg w-full max-w-md border border-yellow-500/50">
+      <h3 class="text-xl font-bold mb-4 text-gray-800 dark:text-white">Create Custom Reward</h3>
+      <form id="reward-form" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Reward Title
+          </label>
+          <input
+            id="reward-title"
+            type="text"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 bg-gray-50 dark:bg-gray-800 dark:border-gray-700 text-gray-800 dark:text-white"
+            placeholder="e.g., Coffee with a friend"
+            required
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            XP Cost
+          </label>
+          <input
+            id="reward-xp"
+            type="number"
+            min="0"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 bg-gray-50 dark:bg-gray-800 dark:border-gray-700 text-gray-800 dark:text-white"
+            placeholder="e.g., 150"
+            required
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Description (optional)
+          </label>
+          <textarea
+            id="reward-desc"
+            rows="3"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 bg-gray-50 dark:bg-gray-800 dark:border-gray-700 text-gray-800 dark:text-white"
+            placeholder="What does this reward let you do?"
+          ></textarea>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button
+            type="button"
+            id="close-reward-modal"
+            class="px-4 py-2 rounded-lg bg-gray-500 hover:bg-gray-600 text-white text-sm"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            class="px-4 py-2 rounded-lg bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-semibold"
+          >
+            Save Reward
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <custom-footer></custom-footer>
+
+  <!-- Scripts -->
+<script src="js/navbar.js"></script>
+<script src="js/footer.js"></script>
+<script src="js/script.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    if (window.feather) feather.replace();
+
+    const rewardsGrid      = document.getElementById('rewards-grid');
+    const addRewardBtn     = document.getElementById('add-reward-btn');
+    const addRewardModal   = document.getElementById('add-reward-modal');
+    const closeRewardModal = document.getElementById('close-reward-modal');
+    const rewardForm       = document.getElementById('reward-form');
+
+    const cosmeticsGrid = document.getElementById('cosmetics-grid');
+    const coinsEl       = document.getElementById('rewards-coins');
+
+    // ---- Ensure state fields exist ----
+    if (typeof state === 'undefined') window.state = {};
+    if (!Array.isArray(state.rewards)) state.rewards = [];
+    if (typeof state.xp !== 'number') state.xp = state.xp ? Number(state.xp) : 0;
+    if (typeof state.coins !== 'number') state.coins = state.coins ? Number(state.coins) : 0;
+    if (!Array.isArray(state.ownedCosmetics)) state.ownedCosmetics = [];
+    if (!state.equippedCosmetics) state.equippedCosmetics = {};
+
+    /* ==========================
+       1) DYNAMIC REWARDS (XP)
+       ========================== */
+
+    function renderRewards() {
+      rewardsGrid.innerHTML = '';
+
+      const rewards = state.rewards || [];
+      if (rewards.length === 0) {
+        const empty = document.createElement('p');
+        empty.className = 'text-gray-500 dark:text-gray-400 text-sm';
+        empty.textContent = 'No rewards yet. Create one using the button above!';
+        rewardsGrid.appendChild(empty);
+        return;
+      }
+
+      rewards.forEach(reward => {
+        const card = document.createElement('div');
+        card.className =
+          'bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border-2 border-yellow-300 flex flex-col justify-between';
+
+        card.innerHTML = `
+          <div>
+            <h3 class="font-bold text-lg text-gray-800 dark:text-white">
+              ${reward.title}
+            </h3>
+            <p class="text-yellow-600 dark:text-yellow-400 mt-1">
+              ${reward.xp} XP
+            </p>
+            <p class="text-gray-700 dark:text-gray-300 mt-3">
+              ${reward.description || 'Custom reward'}
+            </p>
+          </div>
+          <button
+            type="button"
+            class="w-full mt-4 bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded-lg text-sm font-medium"
+            data-reward-id="${reward.id}"
+          >
+            Claim Reward
+          </button>
+        `;
+
+        rewardsGrid.appendChild(card);
+      });
+    }
+
+    // Open/close reward modal
+    if (addRewardBtn && addRewardModal && closeRewardModal && rewardForm) {
+      addRewardBtn.addEventListener('click', () => {
+        addRewardModal.classList.remove('hidden');
+      });
+
+      closeRewardModal.addEventListener('click', () => {
+        addRewardModal.classList.add('hidden');
+      });
+
+      rewardForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const title = document.getElementById('reward-title').value.trim();
+        const xp    = parseInt(document.getElementById('reward-xp').value, 10) || 0;
+        const desc  = document.getElementById('reward-desc').value.trim();
+
+        if (!title) return;
+
+        const newReward = {
+          id: (typeof generateId === 'function') ? generateId() : Date.now(),
+          title,
+          xp,
+          description: desc,
+        };
+
+        state.rewards.push(newReward);
+        if (typeof saveState === 'function') saveState();
+
+        renderRewards();
+        rewardForm.reset();
+        addRewardModal.classList.add('hidden');
+      });
+    }
+
+    // Claim reward: spend XP
+    rewardsGrid.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-reward-id]');
+      if (!btn) return;
+
+      const id = btn.dataset.rewardId;
+      const reward = (state.rewards || []).find(r => String(r.id) === String(id));
+      if (!reward) return;
+
+      const cost = reward.xp || 0;
+      if (state.xp < cost) {
+        alert(`Not enough XP to claim "${reward.title}".`);
+        return;
+      }
+
+      state.xp = Math.max(0, state.xp - cost);
+      if (typeof saveState === 'function') saveState();
+
+      btn.textContent = 'Claimed!';
+      btn.disabled = true;
+      btn.classList.add('opacity-60', 'cursor-not-allowed');
+
+      alert(`You claimed "${reward.title}" for ${cost} XP!`);
+    });
+
+    /* ==========================
+       2) COSMETIC SHOP (COINS)
+       ========================== */
+
+    const cosmetics = [
+      {
+        id: 'avatar-border-gold',
+        name: 'Golden Avatar Frame',
+        description: 'Give your profile picture a legendary golden border.',
+        type: 'avatarBorder',
+        cost: 100,
+        previewClass: 'border-yellow-400',
+      },
+      {
+        id: 'avatar-border-pink',
+        name: 'Sunset Pink Frame',
+        description: 'A soft pink frame for a cozy vibe.',
+        type: 'avatarBorder',
+        cost: 80,
+        previewClass: 'border-pink-400',
+      },
+      {
+        id: 'avatar-border-neon',
+        name: 'Neon Gamer Frame',
+        description: 'Bright indigo frame that pops on dark mode.',
+        type: 'avatarBorder',
+        cost: 120,
+        previewClass: 'border-indigo-400',
+      },
+    ];
+
+    function getCoins() {
+    if (typeof state.coins !== 'number') {
+      state.coins = Number(state.coins) || 0;
+    }
+  return state.coins;
+    }
+
+    function isOwned(id) {
+      return Array.isArray(state.ownedCosmetics) && state.ownedCosmetics.includes(id);
+    }
+
+    function getEquipped(type) {
+      return state.equippedCosmetics && state.equippedCosmetics[type];
+    }
+
+    function renderShop() {
+      if (!cosmeticsGrid) return;
+
+      coinsEl.textContent = getCoins();
+      cosmeticsGrid.innerHTML = '';
+
+      cosmetics.forEach(item => {
+        const owned    = isOwned(item.id);
+        const equipped = owned && getEquipped(item.type) === item.id;
+
+        const card = document.createElement('div');
+        card.className =
+          'bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700 flex flex-col justify-between';
+
+        card.innerHTML = `
+          <div class="flex justify-between items-start mb-4">
+            <div>
+              <h3 class="font-bold text-lg text-gray-800 dark:text-white">${item.name}</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">${item.description}</p>
+            </div>
+            <div class="w-10 h-10 rounded-full border-4 ${item.previewClass} bg-gray-200 dark:bg-gray-700"></div>
+          </div>
+          <div class="flex items-center justify-between mt-2">
+            <div class="text-sm text-yellow-500 font-semibold">
+              <span>${item.cost}</span> coins
+            </div>
+            <button
+              class="px-3 py-1 rounded-lg text-sm font-medium ${
+                !owned
+                  ? 'bg-yellow-500 hover:bg-yellow-600 text-white'
+                  : equipped
+                    ? 'bg-green-500 text-white cursor-default'
+                    : 'bg-gray-700 text-white hover:bg-gray-600'
+              }"
+              data-cosmetic-id="${item.id}"
+              data-cosmetic-type="${item.type}"
+            >
+              ${
+                !owned
+                  ? 'Buy'
+                  : equipped
+                    ? 'Equipped'
+                    : 'Equip'
+              }
+            </button>
+          </div>
+        `;
+
+        cosmeticsGrid.appendChild(card);
+      });
+    }
+
+    // Buy / equip cosmetic
+    cosmeticsGrid.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-cosmetic-id]');
+      if (!btn) return;
+
+      const id   = btn.dataset.cosmeticId;
+      const type = btn.dataset.cosmeticType;
+      const item = cosmetics.find(c => c.id === id);
+      if (!item) return;
+
+      const owned = isOwned(id);
+
+      if (!owned) {
+        const currentCoins = getCoins();
+        if (currentCoins < item.cost) {
+          alert('Not enough coins yet! Complete more tasks and habits.');
+          return;
+        }
+
+        state.coins = currentCoins - item.cost;
+
+        if (!Array.isArray(state.ownedCosmetics)) state.ownedCosmetics = [];
+        state.ownedCosmetics.push(id);
+      }
+
+      if (!state.equippedCosmetics) state.equippedCosmetics = {};
+      state.equippedCosmetics[type] = id;
+
+      if (typeof saveState === 'function') saveState();
+      renderShop();
+    });
+
+    // Initial renders
+    renderRewards();
+    renderShop();
+  });
+</script>
+</body>
+</html>

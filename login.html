@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log In | HabitHero</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://unpkg.com/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<!-- Your firebase config -->
+<script src="firebase-config.js"></script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const logoutBtn = document.getElementById("logout-btn");
+    if (logoutBtn) logoutBtn.classList.add("hidden");
+  });
+</script>    
+    
+<!-- Navbar JS (if you have navbar.js injecting HTML) -->
+<script src="navbar.js"></script>
+
+<!-- Logout script -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const logoutBtn = document.getElementById("logout-btn");
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", async () => {
+        try {
+          await auth.signOut();
+          window.location.href = "login.html";
+        } catch (err) {
+          console.error("Logout failed:", err);
+        }
+      });
+    }
+  });
+</script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen flex items-center justify-center">
+  <div class="w-full max-w-md bg-white dark:bg-gray-800 rounded-xl shadow-lg px-8 py-6">
+    <h1 class="text-2xl font-bold mb-4 text-center text-gray-900 dark:text-white">
+      Log in to HabitHero
+    </h1>
+
+    <p id="login-message" class="text-sm mb-4 text-center"></p>
+
+    <form id="login-form" class="space-y-4" novalidate>
+      <div>
+        <label for="login-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          Email
+        </label>
+        <input
+          type="email"
+          id="login-email"
+          class="mt-1 block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          required
+        >
+      </div>
+
+      <div>
+        <label for="login-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          Password
+        </label>
+        <input
+          type="password"
+          id="login-password"
+          class="mt-1 block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          required
+        >
+      </div>
+
+      <button
+        type="submit"
+        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-lg transition"
+      >
+        Log In
+      </button>
+    </form>
+
+    <p class="mt-4 text-sm text-center text-gray-600 dark:text-gray-300">
+      Don’t have an account?
+      <a href="signup.html" class="text-indigo-500 hover:underline">Sign up</a>
+    </p>
+  </div>
+
+<script>
+  function showLoginMessage(element, text, type) {
+    element.textContent = text;
+    element.className = "text-sm mb-4 text-center " + 
+      (type === "error" ? "text-red-500" : "text-green-500");
+  }
+
+  document.getElementById('login-form').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    const msgEl = document.getElementById('login-message');
+
+    try {
+      await auth.signInWithEmailAndPassword(email, password);
+
+      showLoginMessage(msgEl, "Login successful! Redirecting...", "success");
+
+      setTimeout(() => {
+        window.location.href = "index.html";
+      }, 800);
+
+    } catch (err) {
+      console.error(err);
+      showLoginMessage(msgEl, "Invalid email or password.", "error");
+    }
+  });
+</script>
+</body>
+</html>
