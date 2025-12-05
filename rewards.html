@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rewards | HabitHero</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://unpkg.com/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<!-- Your firebase config -->
+<script src="firebase-config.js"></script>
+
+<!-- Navbar JS (if you have navbar.js injecting HTML) -->
+<script src="js/navbar.js"></script>
+
+<!-- Logout script -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const logoutBtn = document.getElementById("logout-btn");
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", async () => {
+        try {
+          await auth.signOut();
+          window.location.href = "login.html";
+        } catch (err) {
+          console.error("Logout failed:", err);
+        }
+      });
+    }
+  });
+</script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
+<custom-navbar></custom-navbar>
+    
+<main class="container mx-auto px-4 py-8">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Cosmetic Shop</h1>
+    <div class="flex items-center gap-2 bg-gray-900/80 text-yellow-300 px-4 py-2 rounded-full">
+      <i data-feather="star" class="w-4 h-4"></i>
+      <span id="rewards-coins">0</span> coins
+    </div>
+  </div>
+
+  <p class="text-gray-700 dark:text-gray-300 mb-4">
+    Spend coins you earn from completing tasks and habits to unlock avatar frames for your profile.
+  </p>
+
+  <div id="cosmetics-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+<div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border-2 border-yellow-400">
+        <div class="flex justify-between items-start">
+            <div>
+                <h3 class="font-bold text-lg text-gray-800 dark:text-white">Watch a Movie</h3>
+                <p class="text-yellow-600 dark:text-yellow-400 mt-1">100 XP</p>
+            </div>
+            <button class="text-primary-500 hover:text-primary-600">
+                <i data-feather="gift" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <p class="text-gray-700 dark:text-gray-300 mt-3">
+            Enjoy your favorite movie as a reward for your hard work.
+        </p>
+        <button class="w-full mt-4 bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded-lg">
+            Claim Reward
+        </button>
+    </div>
+
+    <!-- Reward Card 2 -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border-2 border-pink-400">
+        <div class="flex justify-between items-start">
+            <div>
+                <h3 class="font-bold text-lg text-gray-800 dark:text-white">Order Takeout</h3>
+                <p class="text-pink-500 dark:text-pink-400 mt-1">150 XP</p>
+            </div>
+            <button class="text-primary-500 hover:text-primary-600">
+                <i data-feather="gift" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <p class="text-gray-700 dark:text-gray-300 mt-3">
+            Treat yourself to your favourite takeout meal after a productive week.
+        </p>
+        <button class="w-full mt-4 bg-pink-500 hover:bg-pink-600 text-white py-2 rounded-lg">
+            Claim Reward
+        </button>
+    </div>
+
+    <!-- Reward Card 3 -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border-2 border-indigo-400">
+        <div class="flex justify-between items-start">
+            <div>
+                <h3 class="font-bold text-lg text-gray-800 dark:text-white">Gaming Session</h3>
+                <p class="text-indigo-500 dark:text-indigo-400 mt-1">200 XP</p>
+            </div>
+            <button class="text-primary-500 hover:text-primary-600">
+                <i data-feather="gift" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <p class="text-gray-700 dark:text-gray-300 mt-3">
+            Spend a couple of hours playing your favourite game completely guilt-free.
+        </p>
+        <button class="w-full mt-4 bg-indigo-500 hover:bg-indigo-600 text-white py-2 rounded-lg">
+            Claim Reward
+        </button>
+    </div>
+
+    <!-- Reward Card 4 -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border-2 border-green-400">
+        <div class="flex justify-between items-start">
+            <div>
+                <h3 class="font-bold text-lg text-gray-800 dark:text-white">Self-Care Pack</h3>
+                <p class="text-green-500 dark:text-green-400 mt-1">250 XP</p>
+            </div>
+            <button class="text-primary-500 hover:text-primary-600">
+                <i data-feather="gift" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <p class="text-gray-700 dark:text-gray-300 mt-3">
+            Take a long shower, skincare, music, journaling – a full self-care routine.
+        </p>
+        <button class="w-full mt-4 bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg">
+            Claim Reward
+        </button>
+    </div>
+
+    <!-- Reward Card 5 -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border-2 border-purple-400">
+        <div class="flex justify-between items-start">
+            <div>
+                <h3 class="font-bold text-lg text-gray-800 dark:text-white">New In-App Cosmetic</h3>
+                <p class="text-purple-500 dark:text-purple-400 mt-1">300 XP</p>
+            </div>
+            <button class="text-primary-500 hover:text-primary-600">
+                <i data-feather="gift" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <p class="text-gray-700 dark:text-gray-300 mt-3">
+            Unlock a new avatar frame, badge, or profile cosmetic in HabitHero.
+        </p>
+        <button class="w-full mt-4 bg-purple-500 hover:bg-purple-600 text-white py-2 rounded-lg">
+            Claim Reward
+        </button>
+    </div>
+</div>
+</main>
+
+    <custom-footer></custom-footer>
+
+    <script src="js/navbar.js"></script>
+    <script src="js/footer.js"></script>
+    <script src="js/script.js"></script>
+<script>
+  const cosmetics = [
+    {
+      id: 'avatar-border-gold',
+      name: 'Golden Avatar Frame',
+      description: 'Give your profile picture a legendary golden border.',
+      type: 'avatarBorder',
+      cost: 100,
+      previewClass: 'border-yellow-400',
+    },
+    {
+      id: 'avatar-border-pink',
+      name: 'Sunset Pink Frame',
+      description: 'A soft pink frame for a cozy vibe.',
+      type: 'avatarBorder',
+      cost: 80,
+      previewClass: 'border-pink-400',
+    },
+    {
+      id: 'avatar-border-neon',
+      name: 'Neon Gamer Frame',
+      description: 'Bright indigo frame that pops on dark mode.',
+      type: 'avatarBorder',
+      cost: 120,
+      previewClass: 'border-indigo-400',
+    },
+  ];
+
+  document.addEventListener('DOMContentLoaded', () => {
+    if (window.feather) feather.replace();
+
+    const coinsEl = document.getElementById('rewards-coins');
+    const grid = document.getElementById('cosmetics-grid');
+
+    function getCoins() {
+      return typeof state !== 'undefined' ? (state.coins || 0) : 0;
+    }
+
+    function isOwned(id) {
+      return Array.isArray(state.ownedCosmetics) && state.ownedCosmetics.includes(id);
+    }
+
+    function getEquipped(type) {
+      return state.equippedCosmetics && state.equippedCosmetics[type];
+    }
+
+    function renderShop() {
+      coinsEl.textContent = getCoins();
+      grid.innerHTML = '';
+
+      cosmetics.forEach(item => {
+        const owned = isOwned(item.id);
+        const equipped = owned && getEquipped(item.type) === item.id;
+
+        const card = document.createElement('div');
+        card.className =
+          'bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700 flex flex-col justify-between';
+
+        card.innerHTML = `
+          <div class="flex justify-between items-start mb-4">
+            <div>
+              <h3 class="font-bold text-lg text-gray-800 dark:text-white">${item.name}</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">${item.description}</p>
+            </div>
+            <div class="w-10 h-10 rounded-full border-4 ${item.previewClass} bg-gray-200 dark:bg-gray-700"></div>
+          </div>
+          <div class="flex items-center justify-between mt-2">
+            <div class="text-sm text-yellow-500 font-semibold">
+              <span>${item.cost}</span> coins
+            </div>
+            <button
+              class="px-3 py-1 rounded-lg text-sm font-medium ${
+                !owned
+                  ? 'bg-yellow-500 hover:bg-yellow-600 text-white'
+                  : equipped
+                    ? 'bg-green-500 text-white cursor-default'
+                    : 'bg-gray-700 text-white hover:bg-gray-600'
+              }"
+              data-id="${item.id}"
+              data-type="${item.type}"
+            >
+              ${
+                !owned
+                  ? 'Buy'
+                  : equipped
+                    ? 'Equipped'
+                    : 'Equip'
+              }
+            </button>
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+    }
+
+    grid.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-id]');
+      if (!btn) return;
+
+      const id = btn.dataset.id;
+      const type = btn.dataset.type;
+      const item = cosmetics.find(c => c.id === id);
+      if (!item) return;
+
+      const owned = isOwned(id);
+      if (!owned) {
+        const currentCoins = getCoins();
+        if (currentCoins < item.cost) {
+          alert("Not enough coins yet! Complete more tasks and habits.");
+          return;
+        }
+
+        state.coins = currentCoins - item.cost;
+
+        if (!Array.isArray(state.ownedCosmetics)) state.ownedCosmetics = [];
+        state.ownedCosmetics.push(id);
+      }
+
+      if (!state.equippedCosmetics) state.equippedCosmetics = {};
+      state.equippedCosmetics[type] = id;
+
+      saveState();
+      renderShop();
+    });
+
+    renderShop();
+  });
+</script>
+</body>
+</html>

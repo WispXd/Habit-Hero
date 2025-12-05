@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Habits | HabitHero</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://unpkg.com/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+
+  <!-- Shared navbar + footer + global state -->
+  <script src="js/navbar.js"></script>
+  <script src="js/footer.js"></script>
+  <script src="js/script.js"></script>
+
+  <!-- Logout wiring (same pattern as dashboard/stats) -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const logoutBtn = document.getElementById('logout-btn');
+      if (logoutBtn && typeof auth !== 'undefined') {
+        logoutBtn.addEventListener('click', async () => {
+          try {
+            await auth.signOut();
+            window.location.href = 'login.html';
+          } catch (err) {
+            console.error('Logout failed:', err);
+          }
+        });
+      }
+    });
+  </script>
+</head>
+    
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
+  <custom-navbar></custom-navbar>
+
+  <main class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Your Habits</h1>
+      <button id="add-habit-btn"
+              class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center">
+        <i data-feather="plus" class="w-4 h-4 mr-2"></i>
+        New Habit
+      </button>
+    </div>
+
+    <section class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4">
+      <div id="habits-empty"
+           class="text-sm text-gray-500 dark:text-gray-400">
+        You don't have any habits yet. Click "New Habit" to create one.
+      </div>
+      <div id="habits-list" class="divide-y divide-gray-200 dark:divide-gray-700"></div>
+    </section>
+  </main>
+
+  <!-- Add Habit Modal -->
+  <div id="add-habit-modal"
+       class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center hidden z-40">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg w-full max-w-md p-6">
+      <h2 class="text-lg font-semibold mb-4 text-gray-800 dark:text-white">New Habit</h2>
+      <form id="habit-form" class="space-y-4">
+        <div>
+          <label for="habit-title" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            Habit name
+          </label>
+          <input id="habit-title" type="text" required
+                 class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600
+                        bg-white dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-white">
+        </div>
+
+        <div>
+          <label for="habit-xp" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            XP reward (optional)
+          </label>
+          <input id="habit-xp" type="number" min="1" step="1" placeholder="5"
+                 class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-600
+                        bg-white dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-white">
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" id="cancel-habit"
+                  class="px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700">
+            Cancel
+          </button>
+          <button type="submit"
+                  class="px-4 py-2 rounded-lg text-sm font-medium bg-indigo-600 hover:bg-indigo-700 text-white">
+            Save Habit
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <custom-footer></custom-footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.feather) feather.replace();
+
+      const listEl = document.getElementById('habits-list');
+      const emptyEl = document.getElementById('habits-empty');
+      const modal = document.getElementById('add-habit-modal');
+      const addBtn = document.getElementById('add-habit-btn');
+      const cancelBtn = document.getElementById('cancel-habit');
+      const form = document.getElementById('habit-form');
+
+      function renderHabits() {
+        listEl.innerHTML = '';
+        const habits = Array.isArray(state.habits) ? state.habits : [];
+
+        if (habits.length === 0) {
+          emptyEl.classList.remove('hidden');
+          return;
+        }
+        emptyEl.classList.add('hidden');
+
+        habits
+          .slice()
+          .sort((a, b) => (a.title || '').localeCompare(b.title || ''))
+          .forEach(habit => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'py-3 flex items-start justify-between gap-3';
+
+            const main = document.createElement('div');
+            main.className = 'flex items-start gap-3';
+
+            const checkbox = document.createElement('button');
+            checkbox.className =
+              'mt-1 w-5 h-5 rounded-full border flex items-center justify-center ' +
+              (habit.completedToday
+                ? 'bg-indigo-600 border-indigo-600'
+                : 'border-gray-300 dark:border-gray-600');
+            checkbox.dataset.id = habit.id;
+            checkbox.dataset.action = 'toggle-complete-habit';
+            checkbox.innerHTML = '<i data-feather="check" class="w-3 h-3 text-white"></i>';
+
+            const textWrap = document.createElement('div');
+            const title = document.createElement('p');
+            title.className = 'font-medium text-gray-800 dark:text-white';
+            title.textContent = habit.title;
+
+            const meta = document.createElement('p');
+            meta.className = 'text-xs text-gray-500 dark:text-gray-400';
+            const streak = habit.streak || 0;
+            const xp = habit.xp || 5;
+            meta.textContent = `${streak} day streak • +${xp} XP`;
+
+            textWrap.appendChild(title);
+            textWrap.appendChild(meta);
+
+            main.appendChild(checkbox);
+            main.appendChild(textWrap);
+
+            wrapper.appendChild(main);
+            listEl.appendChild(wrapper);
+          });
+
+        if (window.feather) feather.replace();
+      }
+
+      addBtn.addEventListener('click', () => {
+        modal.classList.remove('hidden');
+      });
+
+      cancelBtn.addEventListener('click', () => {
+        modal.classList.add('hidden');
+        form.reset();
+      });
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const title = document.getElementById('habit-title').value.trim();
+        const xpInput = document.getElementById('habit-xp').value;
+        const xp = xpInput ? parseInt(xpInput, 10) : 5;
+
+        if (!title) return;
+
+        const newHabit = {
+          id: generateId(),
+          title,
+          xp: Number.isNaN(xp) ? 5 : xp,
+          streak: 0,
+          completedToday: false,
+        };
+
+        if (!Array.isArray(state.habits)) state.habits = [];
+        state.habits.push(newHabit);
+        saveState();
+
+        form.reset();
+        modal.classList.add('hidden');
+        renderHabits();
+      });
+
+      listEl.addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-action="toggle-complete-habit"]');
+        if (!btn) return;
+        const id = btn.dataset.id;
+        const h = (state.habits || []).find(habit => String(habit.id) === String(id));
+        if (!h) return;
+const xpReward = h.xp || 5;
+const coinReward = Math.max(1, Math.round(xpReward / 5)); // 1 coin per ~5 XP
+
+        if (!h.completedToday) {
+          h.completedToday = true;
+          h.streak = (h.streak || 0) + 1;
+
+          state.xp += xpReward;
+          state.coins = (state.coins || 0) + coinReward;
+        } else {
+          // Optional: allow unchecking for the day
+          h.completedToday = false;
+          h.streak = Math.max(0, (h.streak || 0) - 1);
+
+          state.xp = Math.max(0, state.xp - xpReward);
+          state.coins = Math.max(0, (state.coins || 0) - coinReward);
+        }
+
+saveState();
+renderHabits();
+
+      });
+
+      renderHabits();
+    });
+  </script>
+</body>
+</html>

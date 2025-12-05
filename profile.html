@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile | HabitHero</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://unpkg.com/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+
+
+<!-- Navbar JS (if you have navbar.js injecting HTML) -->
+<script src="js/navbar.js"></script>
+
+<!-- Logout script -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const logoutBtn = document.getElementById("logout-btn");
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", async () => {
+        try {
+          await auth.signOut();
+          window.location.href = "login.html";
+        } catch (err) {
+          console.error("Logout failed:", err);
+        }
+      });
+    }
+  });
+</script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
+<custom-navbar></custom-navbar>
+    
+<main class="container mx-auto px-4 py-8">
+  <div class="max-w-3xl mx-auto">
+    <div class="flex flex-col md:flex-row gap-8">
+      <!-- Profile Card (left) -->
+      <div class="w-full md:w-1/3">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 sticky top-6">
+          <div class="flex flex-col items-center">
+            <div
+              id="profile-avatar-border"
+              class="w-24 h-24 rounded-full bg-gray-200 dark:bg-gray-700 mb-4 overflow-hidden border-4 border-gray-400"
+            >
+              <img
+                id="profile-avatar-img"
+                src="https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
+                alt="Profile"
+                class="w-full h-full object-cover"
+              />
+            </div>
+            <h2 id="profile-name" class="text-xl font-bold text-gray-800 dark:text-white">
+              Hero User
+            </h2>
+            <p id="profile-level-label" class="text-gray-700 dark:text-gray-300 mt-1 text-sm">
+              Level 1 Adventurer
+            </p>
+
+            <div class="w-full mt-6 space-y-3">
+              <div class="flex justify-between text-sm text-gray-700 dark:text-gray-300">
+                <span>XP</span>
+                <span id="profile-xp">0 XP</span>
+              </div>
+              <div class="flex justify-between text-sm text-gray-700 dark:text-gray-300">
+                <span>Day streak</span>
+                <span id="profile-streak">0 days</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right side -->
+      <div class="w-full md:w-2/3 space-y-6">
+        <!-- Profile Information -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+          <h2 class="text-xl font-bold text-gray-800 dark:text-white mb-4">
+            Profile Information
+          </h2>
+
+          <form id="profile-form">
+            <div class="mb-4">
+              <label class="block text-gray-700 dark:text-gray-300 mb-2">Name</label>
+              <input
+                id="profile-name-input"
+                type="text"
+                class="w-full px-3 py-2 border rounded-lg border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
+              />
+            </div>
+
+            <div class="mb-4">
+              <label class="block text-gray-700 dark:text-gray-300 mb-2">Email</label>
+              <input
+                id="profile-email-input"
+                type="email"
+                class="w-full px-3 py-2 border rounded-lg border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
+              />
+            </div>
+
+            <!-- Premade avatar picker -->
+            <div class="mb-4">
+              <label class="block text-gray-700 dark:text-gray-300 mb-2">
+                Choose a profile avatar
+              </label>
+
+              <div
+                id="avatar-options"
+                class="flex flex-wrap gap-3"
+              >
+                <!-- Avatar 1 -->
+                <button
+                  type="button"
+                  class="avatar-choice rounded-full border-2 border-transparent p-0.5 focus:outline-none"
+                  data-avatar-id="avatar-1"
+                >
+                  <img
+                    src="https://i.pinimg.com/736x/db/e7/ca/dbe7ca7ea423c9dd813c937e38b9bee2.jpg"
+                    alt="Avatar 1"
+                    class="w-12 h-12 rounded-full object-cover"
+                  />
+                </button>
+
+                <!-- Avatar 2 -->
+                <button
+                  type="button"
+                  class="avatar-choice rounded-full border-2 border-transparent p-0.5 focus:outline-none"
+                  data-avatar-id="avatar-2"
+                >
+                  <img
+                    src="https://art.ngfiles.com/images/5321000/5321713_342693_addiangelisnotdead_my-little-pfp-guy.c26f97fc032765ea8b80bf9696267bb9.webp?f1703898272"
+                    alt="Avatar 2"
+                    class="w-12 h-12 rounded-full object-cover"
+                  />
+                </button>
+
+                <!-- Avatar 3 -->
+                <button
+                  type="button"
+                  class="avatar-choice rounded-full border-2 border-transparent p-0.5 focus:outline-none"
+                  data-avatar-id="avatar-3"
+                >
+                  <img
+                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRx3Xjk3ez44-w_G7fWGDJ0KeGC6h5N1gzCaw&s"
+                    alt="Avatar 3"
+                    class="w-12 h-12 rounded-full object-cover"
+                  />
+                </button>
+
+                <!-- Avatar 4 -->
+                <button
+                  type="button"
+                  class="avatar-choice rounded-full border-2 border-transparent p-0.5 focus:outline-none"
+                  data-avatar-id="avatar-4"
+                >
+                  <img
+                    src="https://wallpapers-clan.com/wp-content/uploads/2024/11/just-a-chill-guy-pfp-32.jpg"
+                    alt="Avatar 4"
+                    class="w-12 h-12 rounded-full object-cover"
+                  />
+                </button>
+              </div>
+
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Pick one of the premade avatars. Your choice is saved for this account.
+              </p>
+            </div>
+
+            <button
+              type="submit"
+              class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg"
+            >
+              Save Profile
+            </button>
+          </form>
+        </div>
+
+        <!-- Settings / Theme -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+          <h2 class="text-xl font-bold text-gray-800 dark:text-white mb-4">Account Settings</h2>
+
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="font-medium text-gray-800 dark:text-white">Dark Mode</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-400">
+                Toggle between light and dark theme.
+              </p>
+            </div>
+            <button
+              id="theme-toggle"
+              class="relative inline-flex items-center h-6 rounded-full w-11 bg-gray-200 dark:bg-gray-700 transition-colors"
+            >
+              <span class="sr-only">Toggle dark mode</span>
+              <span
+                class="inline-block w-4 h-4 transform transition translate-x-1 bg-white rounded-full dark:translate-x-6"
+              ></span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<custom-footer></custom-footer>
+
+<script src="js/footer.js"></script>
+<script src="js/script.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    if (window.feather) feather.replace();
+
+    const defaultAvatar =
+      "https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg";
+
+    // Map avatar IDs to image URLs
+    const AVATARS = {
+      "avatar-1": "https://i.pinimg.com/736x/db/e7/ca/dbe7ca7ea423c9dd813c937e38b9bee2.jpg",
+      "avatar-2": "https://art.ngfiles.com/images/5321000/5321713_342693_addiangelisnotdead_my-little-pfp-guy.c26f97fc032765ea8b80bf9696267bb9.webp?f1703898272",
+      "avatar-3": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRx3Xjk3ez44-w_G7fWGDJ0KeGC6h5N1gzCaw&s",
+      "avatar-4": "https://wallpapers-clan.com/wp-content/uploads/2024/11/just-a-chill-guy-pfp-32.jpg",
+    };
+
+    const usersCol = db.collection("users");
+
+    const avatarImg   = document.getElementById("profile-avatar-img");
+    const nameHeader  = document.getElementById("profile-name");
+    const levelLabel  = document.getElementById("profile-level-label");
+
+    const nameInput   = document.getElementById("profile-name-input");
+    const emailInput  = document.getElementById("profile-email-input");
+    const profileForm = document.getElementById("profile-form");
+
+    const avatarButtons = document.querySelectorAll(".avatar-choice");
+
+    const xpEl        = document.getElementById("profile-xp");
+    const streakEl    = document.getElementById("profile-streak");
+    const themeToggle = document.getElementById("theme-toggle");
+
+    let selectedAvatarId = "avatar-1";
+
+    // Show stats from global state
+    function applyStatsFromState() {
+      if (typeof state === "undefined") return;
+
+      const xpVal     = typeof state.xp === "number" ? state.xp : 0;
+      const streakVal = typeof state.streak === "number" ? state.streak : 0;
+      const levelVal  = typeof state.level === "number" ? state.level : 1;
+
+      if (xpEl) xpEl.textContent = xpVal + " XP";
+      if (streakEl) streakEl.textContent = streakVal + (streakVal === 1 ? " day" : " days");
+      if (levelLabel) levelLabel.textContent = "Level " + levelVal + " Adventurer";
+    }
+
+    applyStatsFromState();
+
+    // Highlight selected avatar + update big picture
+    function applySelectedAvatar(id) {
+      selectedAvatarId = id;
+
+      const url = AVATARS[id] || defaultAvatar;
+      if (avatarImg) avatarImg.src = url;
+
+      avatarButtons.forEach((btn) => {
+        const active = btn.dataset.avatarId === id;
+        btn.classList.toggle("ring-2", active);
+        btn.classList.toggle("ring-indigo-500", active);
+      });
+    }
+
+    // Theme toggle
+    if (themeToggle) {
+      themeToggle.addEventListener("click", () => {
+        const html = document.documentElement;
+        const isDark = html.classList.contains("dark");
+        html.classList.toggle("dark", !isDark);
+        localStorage.setItem("theme", isDark ? "light" : "dark");
+      });
+    }
+
+    if (typeof auth === "undefined") {
+      console.error("auth is not defined – check firebase-config.js");
+      return;
+    }
+
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      const userRef = usersCol.doc(user.uid);
+
+      // Defaults from Auth
+      let profileData = {
+        displayName: user.displayName || "Hero User",
+        email: user.email || "",
+        avatarId: "avatar-1",
+      };
+
+      // Merge Firestore user doc if it exists
+      try {
+        const snap = await userRef.get();
+        if (snap.exists) {
+          const data = snap.data();
+          if (data.displayName) profileData.displayName = data.displayName;
+          if (data.email)       profileData.email       = data.email;
+          if (data.avatarId)    profileData.avatarId    = data.avatarId;
+        }
+      } catch (err) {
+        console.error("Error loading user profile:", err);
+      }
+
+      // Set UI from profile data
+      if (nameHeader) nameHeader.textContent = profileData.displayName || "Hero User";
+      if (nameInput)  nameInput.value        = profileData.displayName || "";
+      if (emailInput) emailInput.value       = profileData.email || "";
+
+      applySelectedAvatar(profileData.avatarId || "avatar-1");
+
+      // Avatar choice click handlers
+      avatarButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const id = btn.dataset.avatarId;
+          applySelectedAvatar(id);
+        });
+      });
+
+      // Save name/email/avatar for this account
+      if (profileForm) {
+        profileForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const newName  = (nameInput && nameInput.value.trim())  || profileData.displayName;
+          const newEmail = (emailInput && emailInput.value.trim()) || profileData.email;
+
+          if (nameHeader) nameHeader.textContent = newName || "Hero User";
+
+          try {
+            await userRef.set(
+              {
+                displayName: newName,
+                email: newEmail,
+                avatarId: selectedAvatarId,
+              },
+              { merge: true }
+            );
+
+            await user.updateProfile({
+              displayName: newName,
+              photoURL: AVATARS[selectedAvatarId] || null,
+            });
+
+            alert("Profile saved for this account.");
+          } catch (err) {
+            console.error("Error saving profile:", err);
+            alert("Could not save profile. Please try again.");
+          }
+        });
+      }
+    });
+  });
+</script>
+</body>
+</html>
+

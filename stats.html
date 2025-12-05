@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistics | HabitHero</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://unpkg.com/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<!-- Your firebase config -->
+<script src="firebase-config.js"></script>
+
+<!-- Navbar JS (if you have navbar.js injecting HTML) -->
+<script src="navbar.js"></script>
+
+<!-- Logout script -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const logoutBtn = document.getElementById("logout-btn");
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", async () => {
+        try {
+          await auth.signOut();
+          window.location.href = "login.html";
+        } catch (err) {
+          console.error("Logout failed:", err);
+        }
+      });
+    }
+  });
+</script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
+<custom-navbar></custom-navbar>
+    
+    <main class="container mx-auto px-4 py-8">
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Your Statistics</h1>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- Streak Card -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-primary-100 dark:bg-primary-900 mr-4">
+                        <i data-feather="zap" class="w-6 h-6 text-primary-500 dark:text-primary-400"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-gray-600 dark:text-gray-700 text-sm">Current Streak</h3>
+                    <p class="text-2xl font-bold text-gray-800 dark:text-white">
+                        <span id="stats-streak">0</span> days
+                    </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- XP Card -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-green-100 dark:bg-green-900 mr-4">
+                        <i data-feather="award" class="w-6 h-6 text-green-500 dark:text-green-400"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-gray-500 dark:text-gray-400 text-sm">Total XP</h3>
+                        <p class="text-2xl font-bold text-gray-800 dark:text-white">
+                            <span id="stats-xp">0</span> XP
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Level Card -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-purple-100 dark:bg-purple-900 mr-4">
+                        <i data-feather="star" class="w-6 h-6 text-purple-500 dark:text-purple-400"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-gray-500 dark:text-gray-400 text-sm">Level</h3>
+                        <p class="text-2xl font-bold text-gray-800 dark:text-white">
+                            Level <span id="stats-level">1</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+                <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Habit Completion</h2>
+                <canvas id="habitsChart" height="250"></canvas>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+                <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Task Completion</h2>
+                <canvas id="tasksChart" height="250"></canvas>
+            </div>
+        </div>
+    </main>
+
+    <custom-footer></custom-footer>
+
+    <script src="js/navbar.js"></script>
+    <script src="js/footer.js"></script>
+    <script src="script.js"></script>
+<script>
+  feather.replace();
+
+  document.addEventListener('DOMContentLoaded', function() {
+    // Get saved state (same pattern as dashboard)
+    function getSavedState() {
+      if (typeof state !== 'undefined' && state.tasks && state.habits) {
+        return state;
+      }
+      try {
+        const raw = localStorage.getItem('habithero-data');
+        return raw ? JSON.parse(raw) : {};
+      } catch (e) {
+        console.warn('Could not read saved state:', e);
+        return {};
+      }
+    }
+
+    const s = getSavedState();
+    const tasks = Array.isArray(s.tasks) ? s.tasks : [];
+    const habits = Array.isArray(s.habits) ? s.habits : [];
+
+    const streakVal = typeof s.streak === 'number' ? s.streak : 0;
+    const xpVal = typeof s.xp === 'number' ? s.xp : 0;
+    const levelVal = typeof s.level === 'number' ? s.level : 1;
+
+    // Update stat cards
+    const streakEl = document.getElementById('stats-streak');
+    const xpEl = document.getElementById('stats-xp');
+    const levelEl = document.getElementById('stats-level');
+
+    if (streakEl) streakEl.textContent = streakVal;
+    if (xpEl) xpEl.textContent = xpVal.toLocaleString();
+    if (levelEl) levelEl.textContent = levelVal;
+
+    // Compute completion counts
+    const totalTasks = tasks.length;
+    const completedTasks = tasks.filter(t => t.completed).length;
+
+    const totalHabits = habits.length;
+    const completedHabits = habits.filter(h => h.completedToday).length;
+
+    // Habit Completion Chart (Total vs Completed)
+    const habitsCtx = document.getElementById('habitsChart').getContext('2d');
+    new Chart(habitsCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Total Habits', 'Completed Today'],
+        datasets: [{
+          label: 'Habits',
+          data: [totalHabits, completedHabits],
+          backgroundColor: ['#6366f1', '#10b981'],
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+
+    // Task Completion Chart (Total vs Completed)
+    const tasksCtx = document.getElementById('tasksChart').getContext('2d');
+    new Chart(tasksCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Total Tasks', 'Completed Tasks'],
+        datasets: [{
+          label: 'Tasks',
+          data: [totalTasks, completedTasks],
+          backgroundColor: ['#ec4899', '#f59e0b'],
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+  });
+</script>
+</body>
+</html>
